@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="../style/style.css">
+    <script src="../script/script.js" defer></script>
+    <title>Calculadora de matrizes</title>
+</head>
+<body>
+    <header>
+        <h1>Matriz Calculator</h1>
+        <p>Visualize e calcule operações de matrizes passo a passo</p>
+    </header>
+    <main>
+        <div class="form-div">
+            <form id="matrizForm" class="row gx-3 gy-2 align-items-center">
+                <div class="col-sm-3">
+                    <label class="visually" for="ilinhas">Número de linhas</label>
+                    <input type="number" class="form-control bg-transparent border border-2 border-gray" id="ilinhas" placeholder="Linhas" min="1" max="10" step="1">
+                </div>
+
+                <div class="col-sm-3">
+                    <label class="visually" for="icolunas">Número de colunas</label>
+                    <input type="number" class="form-control  bg-transparent border border-2 border-gray" id="icolunas" placeholder="Colunas" min="1" max="10" step="1">
+                </div>
+
+                <div class="col-sm-3">
+                    <label class="visually" for="operacao">Operações</label>
+                    <select class="form-select  bg-transparent border border-2 border-gray" id="operacao">
+                        <optgroup label="Uma matriz">
+                            <option value="transposta">Matriz Transposta</option>
+                            <option value="inversa">Matriz Inversa</option>
+                            <option value="determinante">Determinante</option>
+                            <option value="escalar">Multiplicação por Escalar</option>
+                        </optgroup>
+                        <optgroup label="Duas matrizes">
+                            <option value="soma">Soma de Matrizes</option>
+                            <option value="subtracao">Subtração de Matrizes</option>
+                            <option value="multiplicacao">Multiplicação de Matrizes</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Gerar Matriz</button>
+                </div>
+            </form>
+        </div>
+        <div class="div-matrizes">
+            <div class="matriz" id="matriz1">
+            </div>
+
+            <div id="input-guiado" style="display:none;">
+                <p id="posicao-label">Digite o valor de A[1][1]</p>
+                <input type="number" id="valor-celula" placeholder="0">
+                <button id="btn-proximo">Próximo</button>
+            </div>
+
+            <div class="matriz" id="matriz2">
+            </div>
+        </div>
+    </main>
+<div id="overlay" style="display:none;">
+    <div id="modal-confirmacao">
+        <h2 id="modal-titulo">⚠️ Matriz grande!</h2>
+        <p id="modal-mensagem">Você deseja criar uma matriz com mais de 5 linhas ou colunas? Isso pode poluir a tela.</p>
+        <div id="modal-botoes">
+            <button id="btn-confirmar">Sim, continuar</button>
+            <button id="btn-cancelar">Cancelar</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
