@@ -90,9 +90,10 @@ form{
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 32px;
+    gap: 16px;
     margin-top: 24px;
     width: 100%;
+    flex-wrap: wrap;
 }
 .matriz {
     display: grid;
@@ -101,6 +102,11 @@ form{
     width: fit-content;
 }
 
+#simbolo-operacao, #simbolo-igual {
+    font-size: 2em;
+    font-weight: bold;
+    color: #0d6efd;
+}
 .celula-matriz {
     width: 48px;
     height: 48px;
@@ -185,4 +191,28 @@ form{
 #btn-cancelar:hover {
     background-color: #dc3545;
     color: white;
+}
+.resultado-escalar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    border-radius: 10px;
+    background-color: rgb(230, 245, 255);
+    width: fit-content;
+    margin: 20px auto;
+}
+
+.escalar-label {
+    font-size: 1em;
+    color: #555;
+    font-weight: 600;
+}
+
+.escalar-valor {
+    font-size: 2em;
+    font-weight: bold;
+    color: #0d6efd;
 }
