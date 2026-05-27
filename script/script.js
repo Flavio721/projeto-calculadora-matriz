@@ -25,8 +25,14 @@ const operacoes = {
         exibirMatriz(resultado, resultado[0].length, "matriz2");
     },
     "determinante": () => {
-    const resultado = determinante(matriz);
-    exibirEscalar(resultado, "matriz2", "Determinante:");
+        console.log("=== OPERAÇÃO DETERMINANTE ===");
+        console.log("matriz recebida:", matriz);
+        console.log("dimensões:", matriz.length, "x", matriz[0]?.length);
+        
+        const resultado = determinante(matriz);
+        
+        console.log("resultado:", resultado);
+        exibirEscalar(resultado, "matriz2", "Determinante:");
     },
     "inversa": () => {
         const resultado = matrizInversa(matriz);
@@ -103,13 +109,6 @@ const btnProximo = document.getElementById("btn-proximo");
 btnProximo.onclick = function(){
     const celulaValue = document.getElementById("valor-celula").value;
 
-    console.log("--- clique ---");
-    console.log("preenchendoMatriz:", preenchendoMatriz);
-    console.log("linha atual:", linha);
-    console.log("matriz atual:", matriz);
-    console.log("colunasUsuario:", colunasUsuario);
-    console.log("linhasUsuario:", linhasUsuario);
-
     if(!celulaValue){
         alert("Preencha um valor para ser adicionado na matriz");
         return;
@@ -162,6 +161,7 @@ btnProximo.onclick = function(){
 
     document.getElementById("posicao-label").innerText = 
         `Digite o valor de ${letra}[${matrizRef.length + 1}][${linhaRef.length + 1}]`;
+    
 };
 function exibirMatriz(matriz, colunas, containerId) {
     console.log("colunas recebidas:", colunas);
@@ -198,6 +198,7 @@ function exibirMatriz(matriz, colunas, containerId) {
 function exibirEscalar(valor, containerId, label) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
+    container.style.display = 'block';
 
     const div = document.createElement('div');
     div.classList.add('resultado-escalar');
@@ -228,6 +229,10 @@ function subMatriz(matriz, linhaRemover, colunaRemover) {
         .map(linha => linha.filter((_, j) => j !== colunaRemover)); // em cada linha restante, remove a coluna indicada
 }
 function determinante(matriz) {
+    if(matriz.length !== matriz[0].length){
+        alert("O determinante só pode ser calculado em matrizes quadradas!");
+        return null;
+    }
     if (matriz.length === 0) return 1; // ← para array vazio
     if (matriz.length === 1) return matriz[0][0]; // ← para 1x1
     if (matriz.length === 2) { // caso base da recursão
