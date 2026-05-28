@@ -25,13 +25,8 @@ const operacoes = {
         exibirMatriz(resultado, resultado[0].length, "matriz2");
     },
     "determinante": () => {
-        console.log("=== OPERAÇÃO DETERMINANTE ===");
-        console.log("matriz recebida:", matriz);
-        console.log("dimensões:", matriz.length, "x", matriz[0]?.length);
-        
         const resultado = determinante(matriz);
         
-        console.log("resultado:", resultado);
         exibirEscalar(resultado, "matriz2", "Determinante:");
     },
     "inversa": () => {
@@ -164,8 +159,6 @@ btnProximo.onclick = function(){
     
 };
 function exibirMatriz(matriz, colunas, containerId) {
-    console.log("colunas recebidas:", colunas);
-    console.log("matriz recebida:", matriz);
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
