@@ -183,8 +183,7 @@ function exibirMatriz(matriz, colunas, containerId) {
         });
     });
 
-    // Remove o display: 'block' que estava aqui
-    // container.style.display = 'block'; // ← REMOVA ou comente esta linha
+    
 
     if(containerId === 'matriz-resultado'){
         document.getElementById("simbolo-igual").style.display = "block";
