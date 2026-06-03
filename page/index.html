@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="../script/script.js" defer></script>
     <style>
         
@@ -318,9 +318,11 @@
             <p id="simbolo-operacao" style="display:none;">+</p>
 
             <div id="input-guiado" style="display:none;">
-                <p id="posicao-label">Digite o valor de A[1][1]</p>
-                <input type="number" id="valor-celula" placeholder="0">
-                <button id="btn-proximo">Próximo</button>
+                <form id="formGuiado">
+                    <p id="posicao-label">Digite o valor de A[1][1]</p>
+                    <input type="number" id="valor-celula" placeholder="0">
+                    <button id="btn-proximo">Próximo</button>
+                </form>
             </div>
 
             <div class="matriz" id="matriz2" style="display:none;"></div>
@@ -332,7 +334,7 @@
         </div>
         <div id="passo-a-passo" style="display:none;"></div>
         <div id="div-exportar" style="display:none;" class="no-print">
-            <button id="btn-exportar">Exportar Imagem</button>
+            <button id="btn-exportar">Exportar PDF</button>
         </div>
     </main>
     <div id="overlay" style="display:none;">

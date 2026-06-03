@@ -29,9 +29,7 @@ const operacoes = {
     "determinante": () => {
         const resultado = determinante(matriz);
         exibirEscalar(resultado, "matriz-resultado", "Determinante:");
-        passoAPassoDeterminante(matriz);
-        
-        exibirEscalar(resultado, "matriz2", "Determinante:");
+        passoAPassoDeterminante(matriz);        
     },
     "inversa": () => {
         const resultado = matrizInversa(matriz);
@@ -109,32 +107,34 @@ function iniciarPreenchimento(){
     document.getElementById("input-guiado").style.display = "block";
 }
 const btnProximo = document.getElementById("btn-proximo");
+const formCelula = document.getElementById("formGuiado");
 
-btnProximo.onclick = function(){
+formCelula.addEventListener('submit', function(e){
+    e.preventDefault();
     if(aguardandoEscalar){
         const escalarValue = document.getElementById("valor-celula").value;
-
-        if(!escalarValue){
-             alert("Preencha o valor do escalar!"); return;
         
-            }
+        if(!escalarValue){
+            alert("Preencha o valor do escalar!"); return;
+            
+        }
         const escalar = Number(escalarValue);
         const resultado = multiplicacaoEscalar(matriz, escalar);
-
+        
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
         passoAPassoEscalar(matriz, escalar);
-
+        
+        document.getElementById("posicao-label").innerText = "";
+        document.getElementById("valor-celula").value = '';
         document.getElementById("input-guiado").style.display = "none";
         aguardandoEscalar = false;
+        return;
+    };
+    const celulaValue = document.getElementById("valor-celula").value;
+    
     if(!celulaValue){
         alert("Preencha um valor para ser adicionado na matriz");
         return;
-    }
-        const celulaValue = document.getElementById("valor-celula").value;
-
-        if(!celulaValue){
-            alert("Preencha um valor para ser adicionado na matriz");
-            return;
     }
 
     // empurra para a matriz correta
@@ -192,9 +192,8 @@ btnProximo.onclick = function(){
 
     document.getElementById("posicao-label").innerText = 
         `Digite o valor de ${letra}[${matrizRef.length + 1}][${linhaRef.length + 1}]`;
-    
-};
-}
+})
+
 function exibirMatriz(matriz, colunas, containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
@@ -584,26 +583,37 @@ function passoAPassoMultiplicacao(A, B) {
 
 // ================ FUNÇÕES DE EXPORTAÇÃO ================
 
-document.getElementById("btn-exportar").onclick = function(){
+document.getElementById("btn-exportar").onclick = function () {
     const elementosOcultos = document.querySelectorAll('.no-print');
     elementosOcultos.forEach(el => el.style.visibility = 'hidden');
 
-    const elemento = document.getElementById("main-content");
-    console.log(elemento)
-    
-    html2canvas(elemento, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollY: -window.scrollY,
-        windowHeight: document.getElementById("main-content").scrollHeight
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'resultado.png';
-        link.href = canvas.toDataURL();
-        link.click();
+    const elemento = document.body;
 
-        // mostra novamente após captura
-        elementosOcultos.forEach(el => el.style.visibility = 'visible');
-    });
+    const options = {
+        margin: 10,
+        filename: 'resultado.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            scrollY: -window.scrollY
+        },
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        }
+    };
+
+    html2pdf()
+        .set(options)
+        .from(elemento)
+        .save()
+        .then(() => {
+            elementosOcultos.forEach(el => el.style.visibility = 'visible');
+        })
+        .catch(() => {
+            elementosOcultos.forEach(el => el.style.visibility = 'visible');
+        });
 };
