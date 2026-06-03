@@ -10,6 +10,24 @@ let operacaoUsuario = "";
 let preenchendoMatriz = 1;
 let aguardandoEscalar = false;
 const operacoesDuasMatrizes = ["soma", "subtracao", "multiplicacao"];
+const matrizConfig = {
+    'matriz1': {
+        containerId: 'matriz1',
+        displaySymbol: null,
+        symbolElementId: null
+    },
+    'matriz2': {
+        containerId: 'matriz2',
+        displaySymbol: true,
+        symbolElementId: 'simbolo-operacao',
+        getSymbolText: () => simbolos[operacaoUsuario]
+    },
+    'matriz-resultado': {
+        containerId: 'matriz-resultado',
+        displaySymbol: true,
+        symbolElementId: 'simbolo-igual'
+    }
+};
 const simbolos = {
     "soma": "+",
     "subtracao": "−",
@@ -19,42 +37,53 @@ const simbolos = {
     "determinante": "det",
     "escalar": "×"
 };
+const appState = {
+    matriz: [],
+    linha: [],
+    matriz2: [],
+    linha2: [],
+    linhasUsuario: 0,
+    colunasUsuario: 0,
+    operacaoUsuario: "",
+    preenchendoMatriz: 1,
+    aguardandoEscalar: false
+};
 
 const operacoes = {
     "transposta": () => {
-        const resultado = transporMatriz(matriz);
+        const resultado = transporMatriz(appState.matriz);
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoTransposta(matriz);
+        passoAPassoTransposta(appState.matriz);
     },
     "determinante": () => {
-        const resultado = determinante(matriz);
+        const resultado = determinante(appState.matriz);
         exibirEscalar(resultado, "matriz-resultado", "Determinante:");
-        passoAPassoDeterminante(matriz);        
+        passoAPassoDeterminante(appState.matriz);        
     },
     "inversa": () => {
-        const resultado = matrizInversa(matriz);
+        const resultado = matrizInversa(appState.matriz);
         if(resultado === null){ 
             alert("Matriz singular, inversa não existe!"); 
             return; 
         }
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoInversa(matriz);
+        passoAPassoInversa(appState.matriz);
     },
     "escalar": () => {}, // chamado direto no btnProximo
     "multiplicacao": () => {
-        const resultado = multiplicarMatrizes(matriz, matriz2);
+        const resultado = multiplicarMatrizes(appState.matriz, appState.matriz2);
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoMultiplicacao(matriz, matriz2);
+        passoAPassoMultiplicacao(appState.matriz, appState.matriz2);
     },
     "soma": () => {
-        const resultado = somarMatrizes(matriz, matriz2);
+        const resultado = somarMatrizes(appState.matriz, appState.matriz2);
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoSoma(matriz, matriz2, "soma");
+        passoAPassoSoma(appState.matriz, appState.matriz2, "soma");
     },
     "subtracao": () => {
-        const resultado = subtrairMatrizes(matriz, matriz2);
+        const resultado = subtrairMatrizes(appState.matriz, appState.matriz2);
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoSoma(matriz, matriz2, "subtracao");
+        passoAPassoSoma(appState.matriz, appState.matriz2, "subtracao");
     },
 };
 
@@ -82,25 +111,23 @@ formMatriz.addEventListener("submit", function(e){
             document.getElementById("overlay").style.display = "none";
             document.getElementById("ilinhas").value = 0
             document.getElementById("icolunas").value = 0
-            document.getElementById("operacao").value = ""
-            
+            document.getElementById("operacao").value = ""   
         }
-
         return;
     }
     iniciarPreenchimento();
 });
 
 function iniciarPreenchimento(){
-    linhasUsuario = Number(document.getElementById("ilinhas").value);
-    colunasUsuario = Number(document.getElementById("icolunas").value);
-    operacaoUsuario = document.getElementById("operacao").value;
+    appState.linhasUsuario = Number(document.getElementById("ilinhas").value);
+    appState.colunasUsuario = Number(document.getElementById("icolunas").value);
+    appState.operacaoUsuario = document.getElementById("operacao").value;
 
-    preenchendoMatriz = 1;
-    matriz = [];
-    linha = [];
-    matriz2 = [];
-    linha2 = [];
+    appState.preenchendoMatriz = 1;
+    appState.matriz = [];
+    appState.linha = [];
+    appState.matriz2 = [];
+    appState.linha2 = [];
 
     // atualiza o label para matriz A
     document.getElementById("posicao-label").innerText = "Digite o valor de A[1][1]";
@@ -111,7 +138,7 @@ const formCelula = document.getElementById("formGuiado");
 
 formCelula.addEventListener('submit', function(e){
     e.preventDefault();
-    if(aguardandoEscalar){
+    if(appState.aguardandoEscalar){
         const escalarValue = document.getElementById("valor-celula").value;
         
         if(!escalarValue){
@@ -122,7 +149,7 @@ formCelula.addEventListener('submit', function(e){
         const resultado = multiplicacaoEscalar(matriz, escalar);
         
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoEscalar(matriz, escalar);
+        passoAPassoEscalar(appState.matriz, escalar);
         
         document.getElementById("posicao-label").innerText = "";
         document.getElementById("valor-celula").value = '';
@@ -138,32 +165,32 @@ formCelula.addEventListener('submit', function(e){
     }
 
     // empurra para a matriz correta
-    if(preenchendoMatriz === 1){
-        linha.push(Number(celulaValue));
-        if(linha.length === colunasUsuario){
-            matriz.push([...linha]); // ← spread para copiar a linha
-            linha = [];
+    if(appState.preenchendoMatriz === 1){
+        appState.linha.push(Number(celulaValue));
+        if(appState.linha.length === appState.colunasUsuario){
+            appState.matriz.push([...appState.linha]); // ← spread para copiar a linha
+            appState.linha = [];
         }
     } else {
-        linha2.push(Number(celulaValue));
-        if(linha2.length === colunasUsuario){
-            matriz2.push([...linha2]); // ← spread para copiar a linha
-            linha2 = [];
+        appState.linha2.push(Number(celulaValue));
+        if(appState.linha2.length === appState.colunasUsuario){
+            appState.matriz2.push([...appState.linha2]); // ← spread para copiar a linha
+            appState.linha2 = [];
         }
     }
 
     document.getElementById("valor-celula").value = '';
 
     // verifica se a matriz atual foi concluída
-    const matrizAtual = preenchendoMatriz === 1 ? matriz : matriz2;
-    const containerId = preenchendoMatriz === 1 ? "matriz1" : "matriz2";
+    const matrizAtual = appState.preenchendoMatriz === 1 ? appState.matriz : appState.matriz2;
+    const containerId = appState.preenchendoMatriz === 1 ? "matriz1" : "matriz2";
 
-    if(matrizAtual.length === linhasUsuario){
+    if(matrizAtual.length === appState.linhasUsuario){
 
-        exibirMatriz(matrizAtual, colunasUsuario, containerId);
+        exibirMatriz(matrizAtual, appState.colunasUsuario, containerId);
 
-        if(operacaoUsuario === "escalar"){
-            aguardandoEscalar = true;
+        if(appState.operacaoUsuario === "escalar"){
+            appState.aguardandoEscalar = true;
             document.getElementById("posicao-label").innerText = "Digite o valor do escalar";
             document.getElementById("valor-celula").value = '';
             document.getElementById("input-guiado").style.display = "block";
@@ -171,8 +198,8 @@ formCelula.addEventListener('submit', function(e){
         }
 
         // precisa de segunda matriz e ainda não preencheu
-        if(operacoesDuasMatrizes.includes(operacaoUsuario) && preenchendoMatriz === 1){
-            preenchendoMatriz = 2;
+        if(operacoesDuasMatrizes.includes(appState.operacaoUsuario) && appState.preenchendoMatriz === 1){
+            appState.preenchendoMatriz = 2;
 
             document.getElementById("posicao-label").innerText = "Digite o valor de B[1][1]";
             document.getElementById("input-guiado").style.display = "block";
@@ -181,28 +208,30 @@ formCelula.addEventListener('submit', function(e){
 
         // todas as matrizes preenchidas, executa a operação
         document.getElementById("input-guiado").style.display = "none";
-        operacoes[operacaoUsuario]();
+        operacoes[appState.operacaoUsuario]();
         return;
     }
 
     // atualiza o label para a próxima posição
-    const matrizRef = preenchendoMatriz === 1 ? matriz : matriz2;
-    const linhaRef = preenchendoMatriz === 1 ? linha : linha2;
-    const letra = preenchendoMatriz === 1 ? "A" : "B";
+    const matrizRef = appState.preenchendoMatriz === 1 ? appState.matriz : appState.matriz2;
+    const linhaRef = appState.preenchendoMatriz === 1 ? appState.linha : appState.linha2;
+    const letra = appState.preenchendoMatriz === 1 ? "A" : "B";
 
     document.getElementById("posicao-label").innerText = 
         `Digite o valor de ${letra}[${matrizRef.length + 1}][${linhaRef.length + 1}]`;
 })
 
 function exibirMatriz(matriz, colunas, containerId) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
+    const config = matrizConfig[containerId];
+    if (!config) return; // safety check
 
-    // Configura o grid CORRETAMENTE
-    container.style.display = 'grid'; // ← MUDEI de 'block' para 'grid'
+    const container = document.getElementById(config.containerId);
+    container.innerHTML = '';
+    container.style.display = 'grid';
     container.style.gridTemplateColumns = `repeat(${colunas}, 1fr)`;
     container.classList.add('grid-matriz');
 
+    // Rendering das células
     matriz.forEach((linha) => {
         linha.forEach((valor) => {
             const celula = document.createElement('div');
@@ -212,22 +241,21 @@ function exibirMatriz(matriz, colunas, containerId) {
         });
     });
 
-    
-
-    if(containerId === 'matriz-resultado'){
-        document.getElementById("simbolo-igual").style.display = "block";
-    }
-
-    if(containerId === 'matriz2'){
-        document.getElementById("simbolo-operacao").style.display = "block";
-        document.getElementById("simbolo-operacao").innerText = simbolos[operacaoUsuario];
+    // Controlar símbolos
+    if (config.displaySymbol) {
+        const symbolEl = document.getElementById(config.symbolElementId);
+        if (symbolEl) {
+            symbolEl.style.display = 'block';
+            if (config.getSymbolText) {
+                symbolEl.innerText = config.getSymbolText();
+            }
+        }
     }
 }
 function exibirEscalar(valor, containerId, label) {
     const container = document.getElementById(containerId);
     container.style.display = 'block';
     container.innerHTML = '';
-    container.style.display = 'block';
 
     const div = document.createElement('div');
     div.classList.add('resultado-escalar');
@@ -258,15 +286,16 @@ function subMatriz(matriz, linhaRemover, colunaRemover) {
         .map(linha => linha.filter((_, j) => j !== colunaRemover)); // em cada linha restante, remove a coluna indicada
 }
 function determinante(matriz) {
+    if (matriz.length === 0) return 1; // ← para array vazio
     if(matriz.length !== matriz[0].length){
         alert("O determinante só pode ser calculado em matrizes quadradas!");
         return null;
     }
-    if (matriz.length === 0) return 1; // ← para array vazio
     if (matriz.length === 1) return matriz[0][0]; // ← para 1x1
     if (matriz.length === 2) { // caso base da recursão
         return (matriz[0][0] * matriz[1][1]) - (matriz[0][1] * matriz[1][0]); // fórmula direta para 2x2
     }
+    
 
     let det = 0;
     for (let j = 0; j < matriz[0].length; j++) { // percorre cada elemento da primeira linha
@@ -318,11 +347,10 @@ function multiplicarMatrizes(A, B){
 }
 
 function somarMatrizes(A, B){
-    if(A.length !== B.length || A[0].length !== B[0].length){
-        alert("Soma impossível: colunas de A devem ser iguais às linhas de B!");
-        return null;
-    }
+    const verificacao = verificacaoSomaSubtracao(A, B);
 
+    if(!verificacao) return null;
+    
     let resultado = []
 
     for(let i = 0; i < A.length; i++){
@@ -337,10 +365,9 @@ function somarMatrizes(A, B){
     return resultado;
 }
 function subtrairMatrizes(A, B){
-    if(A.length !== B.length || A[0].length !== B[0].length){
-        alert("Soma impossível: colunas de A devem ser iguais às linhas de B!");
-        return null;
-    }
+    const verificacao = verificacaoSomaSubtracao(A, B);
+
+    if(!verificacao) return null;
 
     let resultado = []
 
@@ -597,7 +624,7 @@ document.getElementById("btn-exportar").onclick = function () {
             scale: 2,
             useCORS: true,
             allowTaint: true,
-            scrollY: -window.scrollY
+            windowScroll: true
         },
         jsPDF: {
             unit: 'mm',
@@ -617,3 +644,13 @@ document.getElementById("btn-exportar").onclick = function () {
             elementosOcultos.forEach(el => el.style.visibility = 'visible');
         });
 };
+
+// ================ FUNÇÕES AUXILIARES ================
+
+function verificacaoSomaSubtracao(A, B){
+    if(A.length !== B.length || A[0].length !== B[0].length){
+        alert("Impossível de se realizar a operação com matrizes desiguais")
+        return false;
+    }
+    return true;
+}
