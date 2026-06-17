@@ -1,15 +1,11 @@
 // no topo do arquivo, junto com as outras variáveis globais
+// Elementos do DOM
 const formMatriz = document.getElementById("matrizForm");
-let matriz = [];
-let linha = [];
-let matriz2 = [];
-let linha2 = [];
-let linhasUsuario = 0;
-let colunasUsuario = 0;
-let operacaoUsuario = "";
-let preenchendoMatriz = 1;
-let aguardandoEscalar = false;
+const btnProximo = document.getElementById("btn-proximo");
+const formCelula = document.getElementById("formGuiado");
+
 const operacoesDuasMatrizes = ["soma", "subtracao", "multiplicacao"];
+
 const matrizConfig = {
     'matriz1': {
         containerId: 'matriz1',
@@ -20,7 +16,7 @@ const matrizConfig = {
         containerId: 'matriz2',
         displaySymbol: true,
         symbolElementId: 'simbolo-operacao',
-        getSymbolText: () => simbolos[operacaoUsuario]
+        getSymbolText: () => simbolos[appState.operacaoUsuario]
     },
     'matriz-resultado': {
         containerId: 'matriz-resultado',
@@ -28,6 +24,7 @@ const matrizConfig = {
         symbolElementId: 'simbolo-igual'
     }
 };
+
 const simbolos = {
     "soma": "+",
     "subtracao": "−",
@@ -37,6 +34,8 @@ const simbolos = {
     "determinante": "det",
     "escalar": "×"
 };
+
+// Estado centralizado da aplicação (unificado)
 const appState = {
     matriz: [],
     linha: [],
@@ -57,8 +56,10 @@ const operacoes = {
     },
     "determinante": () => {
         const resultado = determinante(appState.matriz);
-        exibirEscalar(resultado, "matriz-resultado", "Determinante:");
-        passoAPassoDeterminante(appState.matriz);        
+        if (resultado !== null) {
+            exibirEscalar(resultado, "matriz-resultado", "Determinante:");
+            passoAPassoDeterminante(appState.matriz);        
+        }
     },
     "inversa": () => {
         const resultado = matrizInversa(appState.matriz);
@@ -69,21 +70,33 @@ const operacoes = {
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
         passoAPassoInversa(appState.matriz);
     },
-    "escalar": () => {}, // chamado direto no btnProximo
+    "escalar": () => {
+        // Agora o fluxo de término do preenchimento aciona o estado do escalar corretamente
+        appState.aguardandoEscalar = true;
+        document.getElementById("posicao-label").innerText = "Digite o valor do escalar";
+        document.getElementById("valor-celula").value = '';
+        document.getElementById("input-guiado").style.display = "block";
+    },
     "multiplicacao": () => {
         const resultado = multiplicarMatrizes(appState.matriz, appState.matriz2);
-        exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoMultiplicacao(appState.matriz, appState.matriz2);
+        if (resultado) {
+            exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
+            passoAPassoMultiplicacao(appState.matriz, appState.matriz2);
+        }
     },
     "soma": () => {
         const resultado = somarMatrizes(appState.matriz, appState.matriz2);
-        exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoSoma(appState.matriz, appState.matriz2, "soma");
+        if (resultado) {
+            exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
+            passoAPassoSoma(appState.matriz, appState.matriz2, "soma");
+        }
     },
     "subtracao": () => {
         const resultado = subtrairMatrizes(appState.matriz, appState.matriz2);
-        exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
-        passoAPassoSoma(appState.matriz, appState.matriz2, "subtracao");
+        if (resultado) {
+            exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
+            passoAPassoSoma(appState.matriz, appState.matriz2, "subtracao");
+        }
     },
 };
 
@@ -99,19 +112,19 @@ formMatriz.addEventListener("submit", function(e){
         return;
     }
 
-    if(linhasValue > 5 || colunasValue > 5){
+    if(Number(linhasValue) > 5 || Number(colunasValue) > 5){
         document.getElementById("overlay").style.display = "flex";
 
         document.getElementById("btn-confirmar").onclick = function(){
             document.getElementById("overlay").style.display = "none";
-            iniciarPreenchimento(); // ✅ chama a função ao confirmar
+            iniciarPreenchimento();
         }
 
         document.getElementById("btn-cancelar").onclick = function(){
             document.getElementById("overlay").style.display = "none";
-            document.getElementById("ilinhas").value = 0
-            document.getElementById("icolunas").value = 0
-            document.getElementById("operacao").value = ""   
+            document.getElementById("ilinhas").value = 0;
+            document.getElementById("icolunas").value = 0;
+            document.getElementById("operacao").value = "";   
         }
         return;
     }
@@ -128,25 +141,26 @@ function iniciarPreenchimento(){
     appState.linha = [];
     appState.matriz2 = [];
     appState.linha2 = [];
+    appState.aguardandoEscalar = false;
 
-    // atualiza o label para matriz A
     document.getElementById("posicao-label").innerText = "Digite o valor de A[1][1]";
     document.getElementById("input-guiado").style.display = "block";
 }
-const btnProximo = document.getElementById("btn-proximo");
-const formCelula = document.getElementById("formGuiado");
 
 formCelula.addEventListener('submit', function(e){
     e.preventDefault();
+    
     if(appState.aguardandoEscalar){
         const escalarValue = document.getElementById("valor-celula").value;
         
         if(!escalarValue){
-            alert("Preencha o valor do escalar!"); return;
-            
+            alert("Preencha o valor do escalar!"); 
+            return;
         }
+        
         const escalar = Number(escalarValue);
-        const resultado = multiplicacaoEscalar(matriz, escalar);
+        // CORRIGIDO: Referenciando appState.matriz em vez de variável global inexistente
+        const resultado = multiplicacaoEscalar(appState.matriz, escalar);
         
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
         passoAPassoEscalar(appState.matriz, escalar);
@@ -154,9 +168,10 @@ formCelula.addEventListener('submit', function(e){
         document.getElementById("posicao-label").innerText = "";
         document.getElementById("valor-celula").value = '';
         document.getElementById("input-guiado").style.display = "none";
-        aguardandoEscalar = false;
+        appState.aguardandoEscalar = false;
         return;
-    };
+    }
+
     const celulaValue = document.getElementById("valor-celula").value;
     
     if(!celulaValue){
@@ -164,63 +179,51 @@ formCelula.addEventListener('submit', function(e){
         return;
     }
 
-    // empurra para a matriz correta
     if(appState.preenchendoMatriz === 1){
         appState.linha.push(Number(celulaValue));
         if(appState.linha.length === appState.colunasUsuario){
-            appState.matriz.push([...appState.linha]); // ← spread para copiar a linha
+            appState.matriz.push([...appState.linha]);
             appState.linha = [];
         }
     } else {
         appState.linha2.push(Number(celulaValue));
         if(appState.linha2.length === appState.colunasUsuario){
-            appState.matriz2.push([...appState.linha2]); // ← spread para copiar a linha
+            appState.matriz2.push([...appState.linha2]);
             appState.linha2 = [];
         }
     }
 
     document.getElementById("valor-celula").value = '';
 
-    // verifica se a matriz atual foi concluída
     const matrizAtual = appState.preenchendoMatriz === 1 ? appState.matriz : appState.matriz2;
     const containerId = appState.preenchendoMatriz === 1 ? "matriz1" : "matriz2";
 
     if(matrizAtual.length === appState.linhasUsuario){
-
         exibirMatriz(matrizAtual, appState.colunasUsuario, containerId);
 
-        if(appState.operacaoUsuario === "escalar"){
-            appState.aguardandoEscalar = true;
-            document.getElementById("posicao-label").innerText = "Digite o valor do escalar";
-            document.getElementById("valor-celula").value = '';
-            document.getElementById("input-guiado").style.display = "block";
-            return;
-        }
-
-        // precisa de segunda matriz e ainda não preencheu
+        // Se precisa de duas matrizes e terminou a primeira
         if(operacoesDuasMatrizes.includes(appState.operacaoUsuario) && appState.preenchendoMatriz === 1){
             appState.preenchendoMatriz = 2;
-
             document.getElementById("posicao-label").innerText = "Digite o valor de B[1][1]";
             document.getElementById("input-guiado").style.display = "block";
             return;
         }
 
-        // todas as matrizes preenchidas, executa a operação
+        // Executa a operação mapeada
         document.getElementById("input-guiado").style.display = "none";
         operacoes[appState.operacaoUsuario]();
         return;
     }
 
-    // atualiza o label para a próxima posição
     const matrizRef = appState.preenchendoMatriz === 1 ? appState.matriz : appState.matriz2;
     const linhaRef = appState.preenchendoMatriz === 1 ? appState.linha : appState.linha2;
     const letra = appState.preenchendoMatriz === 1 ? "A" : "B";
 
     document.getElementById("posicao-label").innerText = 
         `Digite o valor de ${letra}[${matrizRef.length + 1}][${linhaRef.length + 1}]`;
-})
+});
 
+// ... (Mantenha as suas funções exibirMatriz, transporMatriz, determinante, etc. iguais)
 function exibirMatriz(matriz, colunas, containerId) {
     const config = matrizConfig[containerId];
     if (!config) return; // safety check
@@ -236,7 +239,7 @@ function exibirMatriz(matriz, colunas, containerId) {
         linha.forEach((valor) => {
             const celula = document.createElement('div');
             celula.classList.add('celula-matriz');
-            celula.textContent = valor;
+            celula.textContent = valor.toFixed(2);
             container.appendChild(celula);
         });
     });
