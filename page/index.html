@@ -275,6 +275,28 @@
       #btn-exportar:hover {
         background-color: #0b5ed7;
       }
+      .toast-erro {
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-20px);
+        background-color: #dc3545;
+        color: white;
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: 600;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        z-index: 2000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toast-erro.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
     </style>
     <title>Calculadora de matrizes</title>
   </head>
@@ -379,6 +401,9 @@
           <button id="btn-cancelar">Cancelar</button>
         </div>
       </div>
+    </div>
+    <div id="toast-erro" class="toast-erro">
+        <span id="toast-erro-texto"></span>
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

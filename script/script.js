@@ -64,7 +64,7 @@ const operacoes = {
     "inversa": () => {
         const resultado = matrizInversa(appState.matriz);
         if(resultado === null){ 
-            alert("Matriz singular, inversa não existe!"); 
+            mostrarErro("Matriz singular, inversa não existe!"); 
             return; 
         }
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
@@ -108,7 +108,7 @@ formMatriz.addEventListener("submit", function(e){
     const operacao = document.getElementById("operacao").value;
 
     if(!linhasValue || !colunasValue || !operacao){
-        alert("Preencha todos os valores!");
+        mostrarErro("Preencha todos os valores!");
         return;
     }
 
@@ -152,14 +152,9 @@ formCelula.addEventListener('submit', function(e){
     
     if(appState.aguardandoEscalar){
         const escalarValue = document.getElementById("valor-celula").value;
-        
-        if(!escalarValue){
-            alert("Preencha o valor do escalar!"); 
-            return;
-        }
-        
-        const escalar = Number(escalarValue);
-        // CORRIGIDO: Referenciando appState.matriz em vez de variável global inexistente
+        const escalar = validarEntradaNumerica(escalarValue);
+        if(escalar === null) return; // já alertou dentro da função
+
         const resultado = multiplicacaoEscalar(appState.matriz, escalar);
         
         exibirMatriz(resultado, resultado[0].length, "matriz-resultado");
@@ -173,20 +168,17 @@ formCelula.addEventListener('submit', function(e){
     }
 
     const celulaValue = document.getElementById("valor-celula").value;
-    
-    if(!celulaValue){
-        alert("Preencha um valor para ser adicionado na matriz");
-        return;
-    }
+    const valorNumerico = validarEntradaNumerica(celulaValue);
+    if(valorNumerico === null) return;
 
     if(appState.preenchendoMatriz === 1){
-        appState.linha.push(Number(celulaValue));
+        appState.linha.push(valorNumerico);
         if(appState.linha.length === appState.colunasUsuario){
             appState.matriz.push([...appState.linha]);
             appState.linha = [];
         }
     } else {
-        appState.linha2.push(Number(celulaValue));
+        appState.linha2.push(valorNumerico);
         if(appState.linha2.length === appState.colunasUsuario){
             appState.matriz2.push([...appState.linha2]);
             appState.linha2 = [];
@@ -194,6 +186,7 @@ formCelula.addEventListener('submit', function(e){
     }
 
     document.getElementById("valor-celula").value = '';
+    // resto continua igual...
 
     const matrizAtual = appState.preenchendoMatriz === 1 ? appState.matriz : appState.matriz2;
     const containerId = appState.preenchendoMatriz === 1 ? "matriz1" : "matriz2";
@@ -239,7 +232,7 @@ function exibirMatriz(matriz, colunas, containerId) {
         linha.forEach((valor) => {
             const celula = document.createElement('div');
             celula.classList.add('celula-matriz');
-            celula.textContent = valor.toFixed(2);
+            celula.textContent = formatarValor(valor);
             container.appendChild(celula);
         });
     });
@@ -291,7 +284,7 @@ function subMatriz(matriz, linhaRemover, colunaRemover) {
 function determinante(matriz) {
     if (matriz.length === 0) return 1; // ← para array vazio
     if(matriz.length !== matriz[0].length){
-        alert("O determinante só pode ser calculado em matrizes quadradas!");
+        mostrarErro("O determinante só pode ser calculado em matrizes quadradas!");
         return null;
     }
     if (matriz.length === 1) return matriz[0][0]; // ← para 1x1
@@ -330,7 +323,7 @@ function multiplicacaoEscalar(matriz, escalar){
 
 function multiplicarMatrizes(A, B){
     if(A[0].length !== B.length){
-        alert("Multiplicação impossível: colunas de A devem ser iguais às linhas de B!");
+        mostrarErro("Multiplicação impossível: colunas de A devem ser iguais às linhas de B!");
         return null;
     }
     let resultado = [];
@@ -652,8 +645,42 @@ document.getElementById("btn-exportar").onclick = function () {
 
 function verificacaoSomaSubtracao(A, B){
     if(A.length !== B.length || A[0].length !== B[0].length){
-        alert("Impossível de se realizar a operação com matrizes desiguais")
+        mostrarErro("Impossível de se realizar a operação com matrizes desiguais")
         return false;
     }
     return true;
+}
+
+function validarEntradaNumerica(valorBruto) {
+    const valor = valorBruto.trim().replace(',', '.'); // aceita vírgula como decimal também
+
+    if (valor === "") {
+        mostrarErro("Preencha um valor!");
+        return null;
+    }
+
+    if (isNaN(valor) || valor === "." || valor === "-") {
+        mostrarErro("Digite um número válido (ex: 2, -3.5, 0.25)");
+        return null;
+    }
+
+    return Number(valor);
+}
+
+function formatarValor(valor) {
+    const arredondado = Math.round(valor * 1000) / 1000; // corrige erro de float
+    return Number.isInteger(arredondado) ? arredondado.toString() : arredondado.toFixed(2);
+}
+
+function mostrarErro(mensagem) {
+    const toast = document.getElementById("toast-erro");
+    const texto = document.getElementById("toast-erro-texto");
+
+    texto.textContent = mensagem;
+    toast.classList.add("show");
+
+    clearTimeout(toast._timeout); // evita sobrepor timeouts se chamado várias vezes
+    toast._timeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
 }
